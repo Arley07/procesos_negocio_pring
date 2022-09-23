@@ -51,16 +51,15 @@ public class UsuarioController {
         return usuarioRepository.findAllByNombreAndApellidos(nombre, apellidos);
     }
 
-    @GetMapping("/usuario/nombre/{nombre}")
-    public List<Usuario> listarPorNombre(@PathVariable String nombre){
-        return usuarioRepository.findAllByNombre(nombre);
-    }
 
     @GetMapping("/usuario/apellidos/{apellidos}")
     public List<Usuario> listarPorApellidos(@PathVariable String apellidos){
         return usuarioRepository.findAllByApellidos(apellidos);
     }
-
+    @GetMapping("/usuario/nombre/{nombre}")
+    public List<Usuario> listarPorNombre(@PathVariable String nombre){
+        return usuarioRepository.findAllByNombre(nombre);
+    }
     @PutMapping("/usuario/{id}")
     public Usuario editarUsuario(@PathVariable Long id, @RequestBody Usuario usuario){
         Usuario usuarioBD = usuarioRepository.findById(id).get();
