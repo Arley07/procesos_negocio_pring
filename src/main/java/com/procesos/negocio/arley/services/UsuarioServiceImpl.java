@@ -2,9 +2,11 @@ package com.procesos.negocio.arley.services;
 
 import com.procesos.negocio.arley.models.Usuario;
 import com.procesos.negocio.arley.repository.UsuarioRepository;
+import com.procesos.negocio.arley.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,11 @@ public class UsuarioServiceImpl implements UsuarioService{
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private JWTUtil jwtUtil;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseEntity<Usuario> getUserById(Long id) {
@@ -28,6 +35,7 @@ public class UsuarioServiceImpl implements UsuarioService{
     @Override
     public ResponseEntity<Usuario> createUser(Usuario usuario) {
         try {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
             usuarioRepository.save(usuario);
             return new ResponseEntity(usuario,HttpStatus.CREATED);
         }catch (Exception e){
@@ -83,6 +91,8 @@ public class UsuarioServiceImpl implements UsuarioService{
                 usuarioBD.get().setDireccion(usuario.getDireccion());
                 usuarioBD.get().setDocumento(usuario.getDocumento());
                 usuarioBD.get().setFechaNacimiento(usuario.getFechaNacimiento());
+                usuarioBD.get().setCorreo(usuario.getCorreo());
+                usuarioBD.get().setPassword(passwordEncoder.encode(usuario.getPassword()));
                 usuarioRepository.save(usuarioBD.get());
                 return new ResponseEntity(usuarioBD, HttpStatus.OK);
 
@@ -103,6 +113,20 @@ public class UsuarioServiceImpl implements UsuarioService{
         return ResponseEntity.notFound().build();
 
 
+    }
+
+    @Override
+    public ResponseEntity login(String correo, String password) {
+        try {
+            Usuario usuario = usuarioRepository.findAllByCorreo(correo);
+            if (passwordEncoder.matches(password, usuario.getPassword())){
+                String token = jwtUtil.create(String.valueOf(usuario.getId()),usuario.getCorreo());
+                return ResponseEntity.ok(token);
+            }
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
 

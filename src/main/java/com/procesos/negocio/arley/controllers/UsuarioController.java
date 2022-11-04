@@ -2,6 +2,7 @@ package com.procesos.negocio.arley.controllers;
 
 import com.procesos.negocio.arley.models.Usuario;
 import com.procesos.negocio.arley.services.UsuarioService;
+import com.procesos.negocio.arley.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +22,16 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private JWTUtil jwtUtil;
 
 
     @GetMapping(value = "/usuario/{id}")
-    public ResponseEntity  getUsuario(@PathVariable Long id){
+    public ResponseEntity  getUsuario(@PathVariable Long id,
+                                      @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.getUserById(id);
     }
 
@@ -34,32 +41,55 @@ public class UsuarioController {
     }
 
     @GetMapping("/usuarios")
-    public ResponseEntity listarUsuarios(){
+    public ResponseEntity listarUsuarios( @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.allUsers();
     }
 
     @GetMapping("/usuario/{nombre}/{apellidos}")
-    public ResponseEntity listarPorNombreApellidos(@PathVariable String nombre,@PathVariable String apellidos){
+    public ResponseEntity listarPorNombreApellidos(@PathVariable String nombre,@PathVariable String apellidos,
+                                                   @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.allUsersByNameAndLastName(nombre, apellidos);
     }
 
 
     @GetMapping("/usuario/apellidos/{apellidos}")
-    public ResponseEntity listarPorApellidos(@PathVariable String apellidos){
+    public ResponseEntity listarPorApellidos(@PathVariable String apellidos,
+                                             @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.allUsersByLastName(apellidos);
     }
     @GetMapping("/usuario/nombre/{nombre}")
-    public ResponseEntity listarPorNombre(@PathVariable String nombre){
+    public ResponseEntity listarPorNombre(@PathVariable String nombre,
+                                          @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.allUsersByName(nombre);
     }
 
     @PutMapping("/usuario/{id}")
-    public ResponseEntity editarUsuario(@PathVariable Long id, @Valid @RequestBody Usuario usuario){
+    public ResponseEntity editarUsuario(@PathVariable Long id, @Valid @RequestBody Usuario usuario,
+                                        @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.editUser(id, usuario);
     }
 
     @DeleteMapping("/usuario/{id}")
-    public ResponseEntity eliminarUsuario(@PathVariable Long id){
+    public ResponseEntity eliminarUsuario(@PathVariable Long id,
+                                          @RequestHeader(value = "Authorization") String token){
+        if (jwtUtil.getKey(token)== null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token no valido");
+        }
         return usuarioService.deleteUser(id);
     }
 
